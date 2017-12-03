@@ -1,24 +1,4 @@
 (def input 361527)
-
-(defn parse-int
-  [n]
-  (try
-    (Integer/parseInt n)
-    (catch Exception e (println "Failed to parse int: " n))))
-
-(defn transpose
-  "Transposes the given nested sequence into nested vectors, as
-  in matrix transposition.  E.g., (transpose [[1 2 3] [4 5 6]])
-  would return [[1 4] [2 5] [3 6]]."
-  [s]
-  (vec (apply map vector s)))
-
-(defn transpose
-  "Transposes the given nested sequence into nested vectors, as
-  in matrix transposition.  E.g., (transpose [[1 2 3] [4 5 6]])
-  would return [[1 4] [2 5] [3 6]]."
-  [s]
-  (vec (apply map vector s)))
  
 (defn grid-val
 	[grid [x y]]
