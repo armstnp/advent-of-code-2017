@@ -1,5 +1,6 @@
 (ns advent-of-code-2017.day-8
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [clojure.set :as set]))
           
 (def input
   "n dec 271 if az < 3
@@ -1011,16 +1012,6 @@ vkg inc -257 if v >= -1921")
 
 (def instruction-re #"([a-z]+) (inc|dec) (-?\d+) if ([a-z]+) (\p{Punct}+) (-?\d+)")
 
-(defn parse-instruction
-  [s]
-  (let [[_ mod-reg mod-op mod-diff test-reg test-op test-val] (re-matches instruction-re s)]
-    {:mod-reg mod-reg
-     :mod-op mod-op
-     :mod-diff (parse-int mod-diff)
-     :test-reg test-reg
-     :test-op test-op
-     :test-val (parse-int test-val)}))
-
 (def test-ops
   {">" >
    "<" <
@@ -1029,37 +1020,57 @@ vkg inc -257 if v >= -1921")
    "==" =
    "!=" not=})
 
+(def mod-ops {"inc" + "dec" -})
+
+(defn parse-instruction
+  [s]
+  (let [[_ mod-reg mod-op mod-diff test-reg test-op test-val] (re-matches instruction-re s)]
+    {:mod-reg mod-reg
+     :mod-op (get mod-ops mod-op)
+     :mod-diff (parse-int mod-diff)
+     :test-reg test-reg
+     :test-op (get test-ops test-op)
+     :test-val (parse-int test-val)}))
+
 (defn construct-test
   [{:keys [test-reg test-op test-val]}]
-  (let [test-fn (get test-ops test-op)]
-    (fn [context] (test-fn (get context test-reg 0) test-val))))
-
-(def mod-ops {"inc" + "dec" -})
+  (fn [context] (test-op (get context test-reg 0) test-val)))
 
 (defn construct-op
   [{:keys [mod-reg mod-op mod-diff]}]
-  (let [op-fn (get mod-ops mod-op)]
-    (fn [context] (assoc context mod-reg (op-fn (get context mod-reg 0) mod-diff)))))
+  (let [partial-op #(mod-op % mod-diff)]
+    (fn [context] (->> (get context mod-reg 0)
+                       partial-op
+                       (assoc context mod-reg)))))
 
 (defn construct-instruction
   [instruction]
   (let [test-fn (construct-test instruction)
         op-fn (construct-op instruction)]
-    (fn [context] (if (test-fn context) (op-fn context) context))))
-    
+    (fn [context] (if (test-fn context)
+                      (op-fn context)
+                      context))))
+
+(defn instructions->fns
+  [input]
+  (->> input
+    str/split-lines
+    (map parse-instruction)
+    (map construct-instruction)))
+
+(defn apply-instruction
+  [context instruction]
+  (instruction context))
+
 (->> input
-     str/split-lines
-     (map parse-instruction)
-     (map construct-instruction)
-     (reduce (fn [m f] (f m)) {})
+     instructions->fns
+     (reduce apply-instruction {})
      vals
      (apply max))
     
 (->> input
-     str/split-lines
-     (map parse-instruction)
-     (map construct-instruction)
-     (reductions (fn [m f] (f m)) {})
+     instructions->fns
+     (reductions apply-instruction {})
      (map vals)
      (reduce into #{})
      (apply max))
