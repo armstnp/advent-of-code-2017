@@ -1,6 +1,5 @@
 (ns advent-of-code-2017.day-8
-  (:require [clojure.string :as str]
-            [clojure.set :as set]))
+  (:require [clojure.string :as str]))
           
 (def input
   "n dec 271 if az < 3
@@ -1024,24 +1023,25 @@ vkg inc -257 if v >= -1921")
 
 (defn parse-instruction
   [s]
-  (let [[_ mod-reg mod-op mod-diff test-reg test-op test-val] (re-matches instruction-re s)]
+  (let [[_ mod-reg mod-op mod-diff test-reg test-op test-val] (re-matches instruction-re s)
+        mod-diff-int (parse-int mod-diff)
+        mod-op-fn (get mod-ops mod-op)
+        test-val-int (parse-int test-val)
+        test-op-fn (get test-ops test-op)]
     {:mod-reg mod-reg
-     :mod-op (get mod-ops mod-op)
-     :mod-diff (parse-int mod-diff)
+     :mod-fn #(mod-op-fn % mod-diff-int)
      :test-reg test-reg
-     :test-op (get test-ops test-op)
-     :test-val (parse-int test-val)}))
+     :test-fn #(test-op-fn % test-val-int)}))
 
 (defn construct-test
-  [{:keys [test-reg test-op test-val]}]
-  (fn [context] (test-op (get context test-reg 0) test-val)))
+  [{:keys [test-reg test-fn]}]
+  (fn [context] (test-fn (get context test-reg 0))))
 
 (defn construct-op
-  [{:keys [mod-reg mod-op mod-diff]}]
-  (let [partial-op #(mod-op % mod-diff)]
-    (fn [context] (->> (get context mod-reg 0)
-                       partial-op
-                       (assoc context mod-reg)))))
+  [{:keys [mod-reg mod-fn]}]
+  (fn [context] (->> (get context mod-reg 0)
+                     mod-fn
+                     (assoc context mod-reg))))
 
 (defn construct-instruction
   [instruction]
