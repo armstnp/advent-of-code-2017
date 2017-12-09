@@ -34,12 +34,55 @@
   (let [action (get-action state)]
     (shift-stream (action state))))
 
-(->> {:parse-state :parsing-group
+(defn solve
+  [input]
+  (->> {:parse-state :parsing-group
        :score 0
        :garbage-count 0
        :level 0
        :stream input}
-  (iterate gulp)
-  (drop-while :stream)
-  first
-  (#(select-keys % [:score :garbage-count])))
+    (iterate gulp)
+    (drop-while :stream)
+    first
+    (#(select-keys % [:score :garbage-count]))))
+
+(defn test-score
+  [input score]
+  (-> input
+       solve
+       :score
+       (= score)
+       (assert (str input " does not score " score))))
+
+(defn test-garbage
+  [input garbage-count]
+  (-> input
+      solve
+      :garbage-count
+      (= garbage-count)
+      (assert (str input " does not garbage-count " garbage-count))))
+
+(defn test-all
+  [test-fn & cases]
+  (dorun (map (partial apply test-fn) cases)))
+
+(test-all test-score
+  ["{}" 1]
+  ["{{{}}}" 6]
+  ["{{},{}}" 5]
+  ["{{{},{},{{}}}}" 16]
+  ["{<a>,<a>,<a>,<a>}" 1]
+  ["{{<ab>},{<ab>},{<ab>},{<ab>}}" 9]
+  ["{{<!!>},{<!!>},{<!!>},{<!!>}}" 9]
+  ["{{<a!>},{<a!>},{<a!>},{<ab>}}" 3])
+
+(test-all test-garbage
+  ["<>" 0]
+  ["<random characters>" 17]
+  ["<<<<>" 3]
+  ["<{!>}>" 2]
+  ["<!!>" 0]
+  ["<!!!>>" 0]
+  ["<{o\"i!a,<{i<a>" 10])
+
+(solve input)
