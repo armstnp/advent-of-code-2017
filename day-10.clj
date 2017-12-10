@@ -2,7 +2,10 @@
 (def str-input "106,118,236,1,130,0,235,254,59,205,2,87,129,25,255,118")
 
 (def ring-length 256)
-(def starting-ring (range ring-length))
+(def starting-state
+  {:ring (range ring-length)
+   :pos 0
+   :skip 0})
 
 (def hash-lengths-suffix [17 31 73 47 23])
 
@@ -22,32 +25,17 @@
     (concat (reverse to-reverse) to-preserve)))
 
 (defn twist
-  [{:keys [ring pos skip lengths] :as state}]
-  (let [[segment-length & rest-lengths] lengths
-        twisted-ring (->> ring
-                       (rotate-left pos)
-                       (reverse-first segment-length)
-                       (rotate-right pos))]
-
-    {:ring twisted-ring
-     :pos (mod (+ pos segment-length skip) ring-length)
-     :skip (inc skip)
-     :lengths rest-lengths}))
+  [{:keys [ring pos skip]} twist-length]
+  {:ring (->> ring
+           (rotate-left pos)
+           (reverse-first twist-length)
+           (rotate-right pos))
+   :pos (mod (+ pos twist-length skip) (count ring))
+   :skip (inc skip)})
 
 (defn knot
-  [start-state]
-  (->> start-state
-     (iterate twist)
-     (drop-while :lengths)
-     first
-     :ring))
-
-(defn make-starting-state
-  [lengths]
-  {:ring starting-ring
-   :pos 0
-   :skip 0
-   :lengths lengths})
+  [start-state lengths]
+  (get (reduce twist start-state lengths) :ring))
 
 (defn str->lengths
   [s]
@@ -59,7 +47,7 @@
 
 (defn knot-lengths
   [lengths]
-  (knot (make-starting-state lengths)))
+  (knot starting-state lengths))
 
 (defn knot-string
   [s]
