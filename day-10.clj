@@ -6,31 +6,30 @@
 
 (def hash-lengths-suffix [17 31 73 47 23])
 
+(defn rotate-left
+  [n coll]
+  (let [split-point (mod n (count coll))
+        [new-start new-end] (split-at split-point coll)]
+    (concat new-end new-start)))
+
+(defn rotate-right
+  [n coll]
+  (rotate-left (- (count coll) (mod n (count coll))) coll))
+
+(defn reverse-first
+  [n coll]
+  (let [[to-reverse to-preserve] (split-at n coll)]
+    (concat (reverse to-reverse) to-preserve)))
+
 (defn twist
   [{:keys [ring pos skip lengths] :as state}]
   (let [[segment-length & rest-lengths] lengths
-        
-        ;; `cycle` guarantees we'll wrap around to get the full segment length
-        reversed-segment (->> ring
-                           cycle
-                           (drop pos)
-                           (take segment-length)
-                           reverse)
-                         
-        ;; Splat the replacement in, not caring if it goes over the end of the ring's normal size
-        initial-replacement (concat (take pos ring)
-                                    reversed-segment
-                                    (drop (+ pos segment-length) ring))
-                                  
-        ;; Split off the part that's sticking off the end, if any
-        [base-replacement extra-at-end] (split-at ring-length initial-replacement)
-        
-        ;; Stick the part that was hanging off the end back at the beginning
-        pasted-replacement (->> base-replacement
-                             (drop (count extra-at-end))
-                             (concat extra-at-end))]
+        twisted-ring (->> ring
+                       (rotate-left pos)
+                       (reverse-first segment-length)
+                       (rotate-right pos))]
 
-    {:ring pasted-replacement
+    {:ring twisted-ring
      :pos (mod (+ pos segment-length skip) ring-length)
      :skip (inc skip)
      :lengths rest-lengths}))
