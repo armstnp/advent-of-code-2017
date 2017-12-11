@@ -37,10 +37,10 @@
 (defn solve
   [input]
   (->> {:parse-state :parsing-group
-       :score 0
-       :garbage-count 0
-       :level 0
-       :stream input}
+        :score 0
+        :garbage-count 0
+        :level 0
+        :stream input}
     (iterate gulp)
     (drop-while :stream)
     first

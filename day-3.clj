@@ -1,5 +1,5 @@
 (def input 361527)
- 
+
 (defn grid-val
   [grid [x y]]
   (get-in grid [x y]))
@@ -20,7 +20,7 @@
     :west :south
     :south :east
     :east :north))
-	 
+
 (defn move [pos dir]
   (case dir
     :north (north pos)
@@ -34,7 +34,7 @@
         test-pos (move pos test-dir)
         test-cell (grid-val grid test-pos)]
     (if-not test-cell test-dir dir)))
-	 
+
 (defn surrounding-cell-sum
   [grid [x y]]
   (reduce +

@@ -1,5 +1,6 @@
 (ns advent-of-code-2017.day-2
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [advent-of-code-2017.core :as core]))
 
 (def input "1919	2959	82	507	3219	239	3494	1440	3107	259	3544	683	207	562	276	2963
 587	878	229	2465	2575	1367	2017	154	152	157	2420	2480	138	2512	2605	876
@@ -18,44 +19,38 @@
 851	132	939	1563	539	1351	1147	117	1484	100	123	490	152	798	1476	543
 1158	2832	697	113	121	397	1508	118	2181	2122	809	2917	134	2824	3154	2791")
 
-(defn parse-int
-  [n]
-  (try
-    (Integer/parseInt n)
-    (catch Exception e (println "Failed to parse int: " n))))
-
 (defn split-line
-	[s]
-	(str/split s #"\t"))
+  [s]
+  (str/split s #"\t"))
 
 (defn parse-spreadsheet
-	[s]
-	(->> s
-	  str/split-lines
-	  (map split-line)
-	  (map #(map parse-int %))))
+  [s]
+  (->> s
+    str/split-lines
+    (map split-line)
+    (map #(map core/parse-int %))))
 
 (defn line-difference
-	[line]
-	(- (apply max line) (apply min line)))
+  [line]
+  (- (apply max line) (apply min line)))
 
 (defn checksum-spreadsheet
-	[spreadsheet]
-	(->> spreadsheet
-	  (map line-difference)
-	  (reduce +)))
-	
+  [spreadsheet]
+  (->> spreadsheet
+    (map line-difference)
+    (reduce +)))
+
 (defn find-evenly-divisible-quotient
-	[line]
-	(first
-		(for [x line
-		      y line
-		      :when (and (not= x y)
-		                 (zero? (mod x y)))]
-		  (/ x y))))
-	
+  [line]
+  (first
+     (for [x line
+           y line
+           :when (and (not= x y)
+                      (zero? (mod x y)))]
+       (/ x y))))
+
 (defn checksum-spreadsheet-2
-	[spreadsheet]
-	(->> spreadsheet
-	  (map find-evenly-divisible-quotient)
-	  (reduce +)))
+  [spreadsheet]
+  (->> spreadsheet
+    (map find-evenly-divisible-quotient)
+    (reduce +)))

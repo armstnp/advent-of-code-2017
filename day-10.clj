@@ -1,3 +1,6 @@
+(ns advent-of-code-2017.day-10
+  (:require [advent-of-code-2017.core :as core]))
+
 (def input [106,118,236,1,130,0,235,254,59,205,2,87,129,25,255,118])
 (def str-input "106,118,236,1,130,0,235,254,59,205,2,87,129,25,255,118")
 
@@ -9,16 +12,6 @@
 
 (def hash-lengths-suffix [17 31 73 47 23])
 
-(defn rotate-left
-  [n coll]
-  (let [split-point (mod n (count coll))
-        [new-start new-end] (split-at split-point coll)]
-    (concat new-end new-start)))
-
-(defn rotate-right
-  [n coll]
-  (rotate-left (- (count coll) (mod n (count coll))) coll))
-
 (defn reverse-first
   [n coll]
   (let [[to-reverse to-preserve] (split-at n coll)]
@@ -27,9 +20,9 @@
 (defn twist
   [{:keys [ring pos skip]} twist-length]
   {:ring (->> ring
-           (rotate-left pos)
+           (core/rotate-left pos)
            (reverse-first twist-length)
-           (rotate-right pos))
+           (core/rotate-right pos))
    :pos (mod (+ pos twist-length skip) (count ring))
    :skip (inc skip)})
 
