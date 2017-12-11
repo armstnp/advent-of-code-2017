@@ -1,8 +1,4 @@
-(ns advent-of-code-2017.day-2
-  (:require [clojure.string :as str]
-            [advent-of-code-2017.core :as core]))
-
-(def input "1919	2959	82	507	3219	239	3494	1440	3107	259	3544	683	207	562	276	2963
+1919	2959	82	507	3219	239	3494	1440	3107	259	3544	683	207	562	276	2963
 587	878	229	2465	2575	1367	2017	154	152	157	2420	2480	138	2512	2605	876
 744	6916	1853	1044	2831	4797	213	4874	187	6051	6086	7768	5571	6203	247	285
 1210	1207	1130	116	1141	563	1056	155	227	1085	697	735	192	1236	1065	156
@@ -17,40 +13,4 @@
 2533	140	4383	1581	139	141	2151	2104	2753	4524	4712	866	3338	2189	116	4677
 1240	45	254	1008	1186	306	633	1232	1457	808	248	1166	775	1418	1175	287
 851	132	939	1563	539	1351	1147	117	1484	100	123	490	152	798	1476	543
-1158	2832	697	113	121	397	1508	118	2181	2122	809	2917	134	2824	3154	2791")
-
-(defn split-line
-  [s]
-  (str/split s #"\t"))
-
-(defn parse-spreadsheet
-  [s]
-  (->> s
-    str/split-lines
-    (map split-line)
-    (map #(map core/parse-int %))))
-
-(defn line-difference
-  [line]
-  (- (apply max line) (apply min line)))
-
-(defn checksum-spreadsheet
-  [spreadsheet]
-  (->> spreadsheet
-    (map line-difference)
-    (reduce +)))
-
-(defn find-evenly-divisible-quotient
-  [line]
-  (first
-     (for [x line
-           y line
-           :when (and (not= x y)
-                      (zero? (mod x y)))]
-       (/ x y))))
-
-(defn checksum-spreadsheet-2
-  [spreadsheet]
-  (->> spreadsheet
-    (map find-evenly-divisible-quotient)
-    (reduce +)))
+1158	2832	697	113	121	397	1508	118	2181	2122	809	2917	134	2824	3154	2791

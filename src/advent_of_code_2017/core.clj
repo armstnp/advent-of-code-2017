@@ -1,4 +1,9 @@
-(ns advent-of-code-2017.core)
+(ns advent-of-code-2017.core
+  (:require [clojure.java.io :as io]))
+
+(defn read-input
+  [filename]
+  (slurp (io/resource filename)))
 
 (def zero-char-val (int \0))
 
