@@ -42,10 +42,7 @@
 
 (defn explore-group
   [explorer start-node]
-  (->> (iterate explorer {:queue [start-node] :seen #{}})
-    (drop-while :queue)
-    first
-    :seen))
+  (:seen (core/iterate-to :queue explorer {:queue [start-node] :seen #{}})))
 
 (defn explore-all-groups
   [explorer unexplored discovered-groups]

@@ -53,6 +53,12 @@
   [m-v m-f]
   (reduce (fn [m [k f]] (update m k f)) m-v m-f))
 
+(defn iterate-to
+  [incomplete? & iter-args]
+  (->> (apply iterate iter-args)
+    (drop-while incomplete?)
+    first))
+
 (defn split-over
   "Eagerly splits the given finite collection at points where
   the given predicate is true, excluding the splitting elements

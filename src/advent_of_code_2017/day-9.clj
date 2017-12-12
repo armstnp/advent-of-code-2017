@@ -44,9 +44,7 @@
         :garbage-count 0
         :level 0
         :stream input}
-    (iterate gulp)
-    (drop-while :stream)
-    first
+    (core/iterate-to :stream gulp)
     (#(select-keys % [:score :garbage-count]))))
 
 (defn test-score
