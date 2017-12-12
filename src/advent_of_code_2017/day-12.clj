@@ -5,6 +5,8 @@
 
 (def input (core/read-input "day12.txt"))
 
+;; Manual solution by breadth-first search
+
 (defn add-edge
   [graph x y]
   (let [curr-edges (get graph x #{})]
@@ -16,13 +18,16 @@
     (add-edge x y)
     (add-edge y x)))
 
-(def line-re #"(\d+) <-> (\d+(?:, \d+)*)")
-
 (defn line->edges
   [graph line]
-  (let [[_ src dests-str] (re-matches line-re line)
-        dests (str/split dests-str #", ")]
+  (let [[src & dests] (re-seq #"\d+" line)]
     (reduce #(add-bidi-edge %1 src %2) graph dests)))
+
+(defn build-graph
+  [input]
+  (->> input
+    str/split-lines
+    (reduce line->edges {})))
 
 (core/defn-split graph->explorer
   [graph | {:keys [queue seen] :as state}]
@@ -33,12 +38,6 @@
     (if seen-before?
       base-updated-state
       (update base-updated-state :queue #(concat % (get graph queue-next))))))
-
-(defn build-graph
-  [input]
-  (->> input
-    str/split-lines
-    (reduce line->edges {})))
 
 (defn explore-group
   [explorer start-node]
