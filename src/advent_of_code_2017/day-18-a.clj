@@ -1,6 +1,5 @@
 (ns advent-of-code-2017.day-18
   (:require [clojure.string :as str]
-            [clojure.set :as set]
             [advent-of-code-2017.core :as core]))
 
 (def input (core/read-input "day18.txt"))
@@ -11,14 +10,14 @@
   (re-matches #"-?\d+" s))
 
 (core/defn-split build-arg-eval
-  [X | registers]
-  (if (viable-int? X)
-    (core/parse-int X)
-    (get registers X 0)))
+  [arg | registers]
+  (if (viable-int? arg)
+    (core/parse-int arg)
+    (get registers arg 0)))
 
 (core/defn-split build-reg-set
-  [X | v | registers]
-  (assoc registers X v))
+  [register | value | registers]
+  (assoc registers register value))
 
 (defn inc-instr
   [state]

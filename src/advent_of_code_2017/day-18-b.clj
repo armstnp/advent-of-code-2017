@@ -1,6 +1,5 @@
 (ns advent-of-code-2017.day-18-b
   (:require [clojure.string :as str]
-            [clojure.set :as set]
             [advent-of-code-2017.core :as core]))
 
 (def input (core/read-input "day18.txt"))
