@@ -3,7 +3,6 @@
             [advent-of-code-2017.core :as core]))
 
 (def input (core/read-input "day18.txt"))
-(def instruction-lines (->> input str/split-lines (map #(str/split % #" "))))
 
 (defn viable-int?
   [s]
@@ -66,7 +65,7 @@
     not-awaiting))
 
 (core/defn-split parse-rcv
-  [set-x | {:keys [registers in-queue] :as state}]
+  [set-x | {:keys [in-queue] :as state}]
   (let [[next-queue & rest-queue] in-queue]
     (if (nil? next-queue)
       (awaiting state)
@@ -105,16 +104,6 @@
     (instruction state)
     (assoc state :complete true)))
 
-(def instruction-runner
-  (->> instruction-lines
-    (map parse-instruction)
-    vec
-    build-instruction-runner))
-
-(def initial-state {:registers {} :instr-pointer 0 :in-queue []})
-(def initial-programs [{:registers {"p" 0} :instr-pointer 0 :in-queue []}
-                       {:registers {"p" 1} :instr-pointer 0 :in-queue []}])
-
 (defn is-halted?
   [{:keys [complete awaiting]}]
   (or complete awaiting))
@@ -143,8 +132,20 @@
         all-halted (every? is-halted? stepped-progs)]
     (when-not all-halted stepped-progs)))
 
-(->> initial-programs
-  (iterate (build-program-stepper instruction-runner))
-  (take-while identity)
-  (filter #(get (second %) :emitting))
-  count)
+
+(def initial-programs [{:registers {"p" 0} :instr-pointer 0 :in-queue []}
+                       {:registers {"p" 1} :instr-pointer 0 :in-queue []}])
+
+(time
+  (let [program-stepper (->> input
+                          str/split-lines
+                          (map #(str/split % #" "))
+                          (mapv parse-instruction)
+                          build-instruction-runner
+                          build-program-stepper)]
+    (->> initial-programs
+      (iterate program-stepper)
+      (take-while identity)
+      (map second)
+      (filter :emitting)
+      count)))
