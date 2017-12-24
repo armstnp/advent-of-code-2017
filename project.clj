@@ -6,5 +6,4 @@
                  [org.jgrapht/jgrapht-core "1.1.0"]
                  [is-prime "0.1.0"]]
   :javac-options ["-target" "1.8" "-source" "1.8" "-Xlint:-options"]
-  :aot [advent-of-code-2017.core advent-of-code-2017.day-23]
-  :main advent-of-code-2017.day-23)
+  :aot [advent-of-code-2017.core])
