@@ -53,18 +53,31 @@
 
 (->> instruction-strings
   (map parse-instruction)
-  (reduce (fn [dancers f] (f dancers)) init-dancers))
+  (reduce (fn [dancers f] (f dancers)) init-dancers)
+  (apply str))
 
 
+(def parsed-instructions (mapv parse-instruction instruction-strings))
+(def num-instructions (count instruction-strings))
 
-#_(->> instruction-strings
-    (map parse-instruction!)
-    cycle
-    (take (* 1000000000 (count instruction-strings)))
-    (reduce (fn [dancers f] (f dancers)) (transient init-dancers)))
+(loop [i 0
+       seen #{}
+       step 0
+       dancers init-dancers]
+  (if (seen [i dancers])
+    {:step step :dancers dancers :i i}
+    (recur (mod (inc i) num-instructions)
+           (conj seen [i dancers])
+           (inc step)
+           ((parsed-instructions i) dancers))))
 
+;; Manual execution -> resets to initial state @ 420,000 steps
+(def num-dances-per-cycle (/ 420000 num-instructions)) ;; Evenly divisible by observation
+(def eqv-num-dances (mod 1000000000 num-dances-per-cycle))
 
-;;  1  0  0  0
-;;  0  0  1  0
-;;  0  1  0  0
-;;  0  0  0  1
+(->> instruction-strings
+  (map parse-instruction)
+  cycle
+  (take (* eqv-num-dances (count instruction-strings)))
+  (reduce (fn [dancers f] (f dancers)) init-dancers)
+  (apply str))
